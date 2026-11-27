@@ -1,10 +1,8 @@
-"use client";
-
-import { useState } from "react";
-import { authClient } from "@/lib/auth-client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Suspense } from "react";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+import { auth } from "@/lib/auth";
+import { SignOutButton } from "@/components/sign-out-button";
 import {
   Card,
   CardContent,
@@ -13,176 +11,44 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-export default function Home() {
-  const { data: session, isPending } = authClient.useSession();
+async function HomeContent() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
 
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setLoading(true);
-
-    try {
-      if (mode === "signup") {
-        const { error } = await authClient.signUp.email({
-          name,
-          email,
-          password,
-        });
-        if (error) {
-          setError(error.message ?? "Sign up failed");
-        }
-      } else {
-        const { error } = await authClient.signIn.email({
-          email,
-          password,
-        });
-        if (error) {
-          setError(error.message ?? "Sign in failed");
-        }
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (isPending) {
-    return (
-      <div className="flex min-h-screen items-center justify-center p-4">
-        <p className="text-sm text-muted-foreground">Checking session...</p>
-      </div>
-    );
-  }
-
-  if (session) {
-    return (
-      <div className="flex min-h-screen items-center justify-center p-4">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle>Authenticated</CardTitle>
-            <CardDescription>You are currently signed in.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-1 text-sm">
-              <p>
-                <span className="font-medium">Name:</span> {session.user.name}
-              </p>
-              <p>
-                <span className="font-medium">Email:</span> {session.user.email}
-              </p>
-            </div>
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={() => authClient.signOut()}
-            >
-              Sign Out
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
+  if (!session) {
+    redirect("/sign-in");
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>{mode === "signin" ? "Sign In" : "Create Account"}</CardTitle>
-          <CardDescription>
-            {mode === "signin"
-              ? "Enter your email and password to test login."
-              : "Create a new account to test Better Auth."}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {mode === "signup" && (
-              <div className="space-y-2">
-                <Label htmlFor="name">Name</Label>
-                <Input
-                  id="name"
-                  type="text"
-                  placeholder="Your name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                />
-              </div>
-            )}
+    <Card className="w-full max-w-md rounded-2xl border-border/70 bg-card/95 shadow-xl shadow-rose-950/10 ring-1 ring-primary/10 backdrop-blur-sm dark:shadow-black/40">
+      <CardHeader>
+        <CardTitle className="text-2xl font-semibold tracking-tight">
+          Welcome, {session.user.name}
+        </CardTitle>
+        <CardDescription>You are signed in to YouMeet.</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="space-y-1 rounded-lg border border-border/70 bg-muted/40 p-3 text-sm">
+          <p>
+            <span className="font-medium">Name:</span> {session.user.name}
+          </p>
+          <p>
+            <span className="font-medium">Email:</span> {session.user.email}
+          </p>
+        </div>
+        <SignOutButton />
+      </CardContent>
+    </Card>
+  );
+}
 
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-
-            {error && (
-              <p className="text-sm text-destructive">{error}</p>
-            )}
-
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading
-                ? "Please wait..."
-                : mode === "signin"
-                  ? "Sign In"
-                  : "Sign Up"}
-            </Button>
-          </form>
-
-          <div className="mt-4 text-center text-sm">
-            {mode === "signin" ? (
-              <button
-                type="button"
-                className="text-muted-foreground underline hover:text-foreground"
-                onClick={() => {
-                  setMode("signup");
-                  setError(null);
-                }}
-              >
-                Don&apos;t have an account? Sign Up
-              </button>
-            ) : (
-              <button
-                type="button"
-                className="text-muted-foreground underline hover:text-foreground"
-                onClick={() => {
-                  setMode("signin");
-                  setError(null);
-                }}
-              >
-                Already have an account? Sign In
-              </button>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+export default function Home() {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-stone-50 via-background to-rose-50/70 p-4 dark:from-stone-950 dark:via-background dark:to-rose-950/25">
+      <Suspense fallback={null}>
+        <HomeContent />
+      </Suspense>
     </div>
   );
 }
