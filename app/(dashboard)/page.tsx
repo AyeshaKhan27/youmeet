@@ -16,7 +16,7 @@ async function HomeContent() {
   return <HomeView user={session.user} />;
 }
 
-export default function Home() {
+export default function HomePage() {
   return (
     <Suspense fallback={null}>
       <HomeContent />
