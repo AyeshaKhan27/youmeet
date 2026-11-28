@@ -31,9 +31,9 @@ export default function SignInPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [loading, setLoading] = useState(false);
-  const [socialLoading, setSocialLoading] = useState<"google" | "github" | null>(
-    null,
-  );
+  const [socialLoading, setSocialLoading] = useState<
+    "google" | "github" | null
+  >(null);
 
   const validate = (): FieldErrors => {
     const errors: FieldErrors = {};
@@ -61,7 +61,9 @@ export default function SignInPage() {
       toast.add({
         title: "Missing or invalid fields",
         description:
-          errors.email ?? errors.password ?? "Please fill in all required fields.",
+          errors.email ??
+          errors.password ??
+          "Please fill in all required fields.",
         type: "error",
       });
       return;
@@ -276,7 +278,10 @@ export default function SignInPage() {
                 onChange={(e) => {
                   setPassword(e.target.value);
                   if (fieldErrors.password) {
-                    setFieldErrors((prev) => ({ ...prev, password: undefined }));
+                    setFieldErrors((prev) => ({
+                      ...prev,
+                      password: undefined,
+                    }));
                   }
                 }}
               />
