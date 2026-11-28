@@ -12,6 +12,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer"
+import { useIsMobile } from "@/hooks/use-mobile"
+import {
   InputGroup,
   InputGroupAddon,
 } from "@/components/ui/input-group"
@@ -60,7 +68,61 @@ function CommandDialog({
         )}
         showCloseButton={showCloseButton}
       >
-        {children}
+        <Command>{children}</Command>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+function CommandResponsiveDialog({
+  title = "Command Palette",
+  description = "Search for a command to run...",
+  children,
+  className,
+  showCloseButton = false,
+  open,
+  onOpenChange,
+}: {
+  title?: string
+  description?: string
+  className?: string
+  showCloseButton?: boolean
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+  children: React.ReactNode
+}) {
+  const isMobile = useIsMobile()
+
+  if (isMobile) {
+    return (
+      <Drawer open={open} onOpenChange={onOpenChange}>
+        <DrawerContent className={cn("overflow-hidden p-0", className)}>
+          <DrawerHeader className="sr-only">
+            <DrawerTitle>{title}</DrawerTitle>
+            <DrawerDescription>{description}</DrawerDescription>
+          </DrawerHeader>
+          <Command className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]]:px-2 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3">
+            {children}
+          </Command>
+        </DrawerContent>
+      </Drawer>
+    )
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogHeader className="sr-only">
+        <DialogTitle>{title}</DialogTitle>
+        <DialogDescription>{description}</DialogDescription>
+      </DialogHeader>
+      <DialogContent
+        className={cn(
+          "top-1/3 translate-y-0 overflow-hidden rounded-xl! p-0",
+          className
+        )}
+        showCloseButton={showCloseButton}
+      >
+        <Command>{children}</Command>
       </DialogContent>
     </Dialog>
   )
@@ -186,6 +248,7 @@ function CommandShortcut({
 export {
   Command,
   CommandDialog,
+  CommandResponsiveDialog,
   CommandInput,
   CommandList,
   CommandEmpty,

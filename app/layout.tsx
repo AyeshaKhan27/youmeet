@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { GlobalLoader } from "@/components/global-loader";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { Toaster } from "@/components/ui/toast";
 import { TRPCReactProvider } from "@/trpc/client";
 import "./globals.css";
@@ -27,12 +27,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <TRPCReactProvider>
-          <Toaster>
-            <GlobalLoader />
-            {children}
-          </Toaster>
-        </TRPCReactProvider>
+        <NuqsAdapter>
+          <TRPCReactProvider>
+            <Toaster>{children}</Toaster>
+          </TRPCReactProvider>
+        </NuqsAdapter>
       </body>
     </html>
   );

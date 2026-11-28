@@ -1,7 +1,9 @@
-import { z } from "zod";
+import { agentsRouter } from "@/modules/agents/server/procedures";
 import { baseProcedure, createTRPCRouter } from "@/trpc/init";
+import { z } from "zod";
 
 export const appRouter = createTRPCRouter({
+  agents: agentsRouter,
   health: baseProcedure.query(() => ({
     status: "ok",
   })),
