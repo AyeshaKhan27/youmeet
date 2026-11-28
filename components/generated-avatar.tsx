@@ -9,13 +9,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 interface GeneratedAvatarProps {
   seed: string;
   className?: string;
-  variant?: "botttsNeutral" | "initials";
+  variant?: "botttsNeutral" | "initials" | "lorelei";
 }
 
 export function GeneratedAvatar({
   seed,
   className,
-  variant = "initials",
+  variant = "lorelei",
 }: GeneratedAvatarProps) {
   const avatarUri = useMemo(() => {
     const avatar =

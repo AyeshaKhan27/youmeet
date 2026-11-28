@@ -63,7 +63,7 @@ export function DashboardUserButton({ user }: DashboardUserButtonProps) {
           ) : (
             <GeneratedAvatar
               seed={user.name}
-              variant="initials"
+              variant="lorelei"
               className="size-8 shrink-0"
             />
           )}
