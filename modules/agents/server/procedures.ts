@@ -8,7 +8,7 @@ import {
   MIN_PAGE_SIZE,
 } from "@/constants";
 import { db } from "@/db";
-import { agents } from "@/db/schema";
+import { agents, meetings } from "@/db/schema";
 import {
   agentsInsertSchema,
   agentsUpdateSchema,
@@ -25,7 +25,9 @@ export const agentsRouter = createTRPCRouter({
       const [existingAgent] = await db
         .select({
           ...getTableColumns(agents),
-          meetingCount: sql<number>`0`,
+          meetingCount: sql<number>`(
+            SELECT count(*)::int FROM ${meetings} WHERE ${meetings.agentId} = ${agents.id}
+          )`,
         })
         .from(agents)
         .where(
@@ -73,7 +75,9 @@ export const agentsRouter = createTRPCRouter({
         const data = await db
           .select({
             ...getTableColumns(agents),
-            meetingCount: sql<number>`0`,
+            meetingCount: sql<number>`(
+              SELECT count(*)::int FROM ${meetings} WHERE ${meetings.agentId} = ${agents.id}
+            )`,
           })
           .from(agents)
           .where(whereClause)
